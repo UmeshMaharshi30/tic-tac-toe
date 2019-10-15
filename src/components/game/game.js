@@ -2,34 +2,73 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import Player from './player';
 import Board from './../board/board'
+import {user_actions} from './../../actions/'
 
 class Game extends Component {
 
-    componentDidMount() {
-    }
-
     render() {
-        var victors_name = this.props.player1.victory ? this.props.player1.name : this.props.player2.name;
+        function checkGameEnd(grid) {
+            for(var i = 0; i < grid.length;i++) {                
+                var row_strike = true;
+                for(var j = 1; j < grid[0].length;j++) {
+                    if(grid[i][j] === '_') {
+                        row_strike = false;
+                        continue;
+                    }
+                    if(grid[i][j] !== grid[i][j - 1]) {
+                        row_strike = false;
+                    }
+                }
+                if(row_strike) return true;
+            }
+            for(i = 0; i < grid.length;i++) {                
+                row_strike = true;
+                for(j = 1; j < grid[0].length;j++) {
+                    if(grid[j][i] === '_') {
+                        row_strike = false;
+                        continue;
+                    }
+                    if(grid[j - 1][i] !== grid[j][i]) {
+                        row_strike = false;
+                    }
+                }
+                if(row_strike) return true;
+            }
+            for(i = 1; i < grid.length;i++) {                
+                if(grid[i][i] === '_' || (grid[i - 1][i - 1] !== grid[i][i] && grid[i - 1][i - 1] !== '_')) return false;
+            }
+            return true;
+        }
+        var game_end = checkGameEnd(this.props.gameState) && !this.props.playersInformation.player1.victory && !this.props.playersInformation.player2.victory;
+        if(game_end) this.props.onGameEnd();
+        var victors_name = "";
+        if(this.props.playersInformation.player1.victory) victors_name = this.props.playersInformation.player1.name;
+        if(this.props.playersInformation.player2.victory) victors_name = this.props.playersInformation.player2.name;
         return (<div className="container-fluid">
             <nav className="navbar navbar-light bg-primary text-light">
             Welcome to Tic Tac Toe !
             </nav>
             <div className="row text-center">
-            <Player player={this.props.player1}></Player>
+            <Player player={this.props.playersInformation.player1}></Player>
             <Board></Board>
-            <Player player={this.props.player2}></Player>
-            <div className="col-12">{(this.props.player1.victory || this.props.player2.victory) && <div className="col-3 p-1 mb-1 bg-success text-white justify-content-center d-inline">Congrats {victors_name} !</div>}</div>
+            <Player player={this.props.playersInformation.player2}></Player>
+            <div className="col-12">{(this.props.playersInformation.player1.victory || this.props.playersInformation.player2.victory) && <div className="col-3 p-1 mb-1 bg-success text-white justify-content-center d-inline">Congrats {victors_name} !</div>}</div>
             </div>
         </div>);
     }
 }
 
 const mapStateToProps = state => {
-    return {
-        "player1" : state.playersInformation.player1,
-        "player2" : state.playersInformation.player2,
-    }
+    return state;
 }
 
+const mapDispatchToProps = dispatch => {
+    return {
+      onGameEnd:() => {
+        dispatch(user_actions.endGame())
+      }
+    }
+  }
 
-export default connect(mapStateToProps)(Game);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Game);
