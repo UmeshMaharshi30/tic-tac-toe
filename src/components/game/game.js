@@ -9,13 +9,15 @@ class Game extends Component {
     }
 
     render() {
-        return (<div className="container">
+        return (<div className="container-fluid">
+            <nav className="navbar navbar-light bg-primary text-light">
+            Welcome to Tic Tac Toe !
+            </nav>
             <div className="row">
-            <div className="col-12">Welcome to Tic Tac Toe !</div>
             <Player player={this.props.player1}></Player>
+            <Board></Board>
             <Player player={this.props.player2}></Player>
             </div>
-            <Board></Board>
         </div>);
     }
 }
