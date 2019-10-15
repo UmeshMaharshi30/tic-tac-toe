@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import Player from './player';
 import Board from './../board/board'
-import {user_actions} from './../../actions/'
+import {user_actions, game_actions} from './../../actions/'
 
 class Game extends Component {
 
@@ -39,6 +39,13 @@ class Game extends Component {
             }
             return true;
         }
+        var game_settings = this.props.gameState;
+        var changePlayerTurn = this.props.changePlayerTurn;
+        var changeGridValue = this.props.changeGridValue;
+        var alphabet = this.props.playersInformation.player1.turn ? this.props.playersInformation.player1.alphabet : this.props.playersInformation.player2.alphabet;
+        var game_ended = this.props.playersInformation.player1.victory || this.props.playersInformation.player2.victory;
+        var board_properties = {game_settings, changePlayerTurn, changeGridValue, val : alphabet, game_ended : game_ended};
+        
         var game_end = checkGameEnd(this.props.gameState) && !this.props.playersInformation.player1.victory && !this.props.playersInformation.player2.victory;
         if(game_end) this.props.onGameEnd();
         var victors_name = "";
@@ -50,7 +57,7 @@ class Game extends Component {
             </nav>
             <div className="row text-center">
             <Player player={this.props.playersInformation.player1}></Player>
-            <Board></Board>
+            <Board board={board_properties}></Board>
             <Player player={this.props.playersInformation.player2}></Player>
             <div className="col-12">{(this.props.playersInformation.player1.victory || this.props.playersInformation.player2.victory) && <div className="col-3 p-1 mb-1 bg-success text-white justify-content-center d-inline">Congrats {victors_name} !</div>}</div>
             </div>
@@ -66,6 +73,12 @@ const mapDispatchToProps = dispatch => {
     return {
       onGameEnd:() => {
         dispatch(user_actions.endGame())
+      },
+      changePlayerTurn:() => {
+          dispatch(user_actions.changePlayerTurn())
+      },
+      changeGridValue:(r,c,val) => {
+          dispatch(game_actions.changeGridValue(r,c,val))
       }
     }
   }
